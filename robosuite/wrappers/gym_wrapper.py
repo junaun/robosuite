@@ -81,7 +81,7 @@ class GymWrapper(Wrapper, gym.Env):
             if key in obs_dict:
                 if verbose:
                     print("adding key: {}".format(key))
-                ob_lst.append(np.array(obs_dict[key]).flatten())
+                ob_lst.append(np.array(obs_dict[key]))
         return np.concatenate(ob_lst)
 
     def reset(self, seed=None, options=None):
