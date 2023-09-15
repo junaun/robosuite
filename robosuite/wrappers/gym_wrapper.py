@@ -58,10 +58,12 @@ class GymWrapper(Wrapper, gym.Env):
         obs = self.env.reset()
         self.modality_dims = {key: obs[key].shape for key in self.keys}
         flat_ob = self._flatten_obs(obs)
-        self.obs_dim = flat_ob.size
-        high = np.inf * np.ones(self.obs_dim)
-        low = -high
-        self.observation_space = spaces.Box(low, high)
+        self.obs_dim = flat_ob.shape
+        # high = np.inf * np.ones(self.obs_dim)
+        # low = -high
+        high = 255
+        low = 0
+        self.observation_space = spaces.Box(low, high, shape=self.obs_dim, dtype=np.uint8())
         low, high = self.env.action_spec
         self.action_space = spaces.Box(low, high)
 
@@ -76,13 +78,14 @@ class GymWrapper(Wrapper, gym.Env):
         Returns:
             np.array: observations flattened into a 1d array
         """
-        ob_lst = []
+        # ob_lst = []
         for key in self.keys:
             if key in obs_dict:
                 if verbose:
                     print("adding key: {}".format(key))
-                ob_lst.append(np.array(obs_dict[key]))
-        return np.concatenate(ob_lst)
+                return obs_dict[key]
+                # ob_lst.append(np.array(obs_dict[key]))
+        # return np.concatenate(ob_lst)
 
     def reset(self, seed=None, options=None):
         """
