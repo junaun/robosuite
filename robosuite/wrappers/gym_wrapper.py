@@ -58,12 +58,24 @@ class GymWrapper(Wrapper, gym.Env):
         obs = self.env.reset()
         self.modality_dims = {key: obs[key].shape for key in self.keys}
         flat_ob = self._flatten_obs(obs)
-        self.obs_dim = flat_ob.shape
+        # self.obs_dim = flat_ob.shape
         # high = np.inf * np.ones(self.obs_dim)
         # low = -high
         high = 255
         low = 0
-        self.observation_space = spaces.Box(low, high, shape=self.obs_dim, dtype=np.uint8())
+        robot_state = {
+            'robot0_joint_pos_cos': spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+            'robot0_joint_pos_sin':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+            'robot0_joint_vel':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+            'robot0_eef_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
+            'robot0_eef_quat':spaces.Box(low=-1, high=1, shape=(4,), dtype=np.float32),
+            'robot0_gripper_qpos':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+            'robot0_gripper_qvel':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+            'robot0_eye_in_hand_image':spaces.Box(low, high, shape=obs['robot0_eye_in_hand_image'].shape, dtype=np.uint8()),
+            'robot0_proprio-state':spaces.Box(low=-1, high=1, shape=(37,), dtype=np.float32)
+        }
+        self.observation_space = spaces.Dict(robot_state)
+        # self.observation_space = spaces.Box(low, high, shape=self.obs_dim, dtype=np.uint8())
         low, high = self.env.action_spec
         self.action_space = spaces.Box(low, high)
 
@@ -79,13 +91,14 @@ class GymWrapper(Wrapper, gym.Env):
             np.array: observations flattened into a 1d array
         """
         # ob_lst = []
-        for key in self.keys:
-            if key in obs_dict:
-                if verbose:
-                    print("adding key: {}".format(key))
-                return obs_dict[key]
+        # for key in self.keys:
+        #     if key in obs_dict:
+        #         if verbose:
+        #             print("adding key: {}".format(key))
+        #         return obs_dict[key]
                 # ob_lst.append(np.array(obs_dict[key]))
         # return np.concatenate(ob_lst)
+        return obs_dict
 
     def reset(self, seed=None, options=None):
         """
