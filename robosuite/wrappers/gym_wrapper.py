@@ -80,10 +80,11 @@ class GymWrapper(Wrapper, gym.Env):
         # }
         robot_state = {}
         for key, value in obs.items():
-            if 'image' in key:
-                robot_state[key] = gym.spaces.Box(low=0, high=255, shape=value.shape, dtype=np.uint8)
-            else:
-                robot_state[key] = gym.spaces.Box(low=-1, high=1, shape=value.shape, dtype=np.float32)
+            if key in self.keys:
+                if 'image' in key:
+                    robot_state[key] = gym.spaces.Box(low=0, high=255, shape=value.shape, dtype=np.uint8)
+                else:
+                    robot_state[key] = gym.spaces.Box(low=-1, high=1, shape=value.shape, dtype=np.float32)
         self.observation_space = spaces.Dict(robot_state)
         # self.observation_space = spaces.Box(low, high, shape=self.obs_dim, dtype=np.uint8())
         low, high = self.env.action_spec
