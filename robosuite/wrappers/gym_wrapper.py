@@ -63,21 +63,27 @@ class GymWrapper(Wrapper, gym.Env):
         # low = -high
         high = 255
         low = 0
-        robot_state = {
-            'robot0_joint_pos_cos': spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
-            'robot0_joint_pos_sin':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
-            'robot0_joint_vel':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
-            'robot0_eef_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
-            'robot0_eef_quat':spaces.Box(low=-1, high=1, shape=(4,), dtype=np.float32),
-            'robot0_gripper_qpos':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
-            'robot0_gripper_qvel':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
-            'robot0_eye_in_hand_image':spaces.Box(low, high, shape=obs['robot0_eye_in_hand_image'].shape, dtype=np.uint8()),
-            'robot0_proprio-state':spaces.Box(low=-1, high=1, shape=(37,), dtype=np.float32),
-            'cube_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
-            'cube_quat':spaces.Box(low=-1, high=1, shape=(4,), dtype=np.float32),
-            'gripper_to_cube_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
-            'object-state':spaces.Box(low=-1, high=1, shape=(10,), dtype=np.float32),
-        }
+        # robot_state = {
+        #     'robot0_joint_pos_cos': spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+        #     'robot0_joint_pos_sin':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+        #     'robot0_joint_vel':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+        #     'robot0_eef_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
+        #     'robot0_eef_quat':spaces.Box(low=-1, high=1, shape=(4,), dtype=np.float32),
+        #     'robot0_gripper_qpos':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+        #     'robot0_gripper_qvel':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
+        #     'robot0_eye_in_hand_image':spaces.Box(low, high, shape=obs['robot0_eye_in_hand_image'].shape, dtype=np.uint8()),
+        #     'robot0_proprio-state':spaces.Box(low=-1, high=1, shape=(37,), dtype=np.float32),
+        #     'cube_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
+        #     'cube_quat':spaces.Box(low=-1, high=1, shape=(4,), dtype=np.float32),
+        #     'gripper_to_cube_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
+        #     'object-state':spaces.Box(low=-1, high=1, shape=(10,), dtype=np.float32),
+        # }
+        robot_state = {}
+        for key, value in obs.items():
+            if 'image' in key:
+                robot_state[key] = gym.spaces.Box(low=0, high=255, shape=value.shape, dtype=np.uint8)
+            else:
+                robot_state[key] = gym.spaces.Box(low=-1, high=1, shape=value.shape, dtype=np.float32)
         self.observation_space = spaces.Dict(robot_state)
         # self.observation_space = spaces.Box(low, high, shape=self.obs_dim, dtype=np.uint8())
         low, high = self.env.action_spec
