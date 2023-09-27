@@ -72,7 +72,11 @@ class GymWrapper(Wrapper, gym.Env):
             'robot0_gripper_qpos':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
             'robot0_gripper_qvel':spaces.Box(low=-1, high=1, shape=(6,), dtype=np.float32),
             'robot0_eye_in_hand_image':spaces.Box(low, high, shape=obs['robot0_eye_in_hand_image'].shape, dtype=np.uint8()),
-            'robot0_proprio-state':spaces.Box(low=-1, high=1, shape=(37,), dtype=np.float32)
+            'robot0_proprio-state':spaces.Box(low=-1, high=1, shape=(37,), dtype=np.float32),
+            'cube_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
+            'cube_quat':spaces.Box(low=-1, high=1, shape=(4,), dtype=np.float32),
+            'gripper_to_cube_pos':spaces.Box(low=-1, high=1, shape=(3,), dtype=np.float32),
+            'object-state':spaces.Box(low=-1, high=1, shape=(10,), dtype=np.float32),
         }
         self.observation_space = spaces.Dict(robot_state)
         # self.observation_space = spaces.Box(low, high, shape=self.obs_dim, dtype=np.uint8())
