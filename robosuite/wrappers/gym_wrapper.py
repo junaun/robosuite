@@ -39,7 +39,7 @@ class GymWrapper(Wrapper, gym.Env):
         self.reward_range = (0, self.env.reward_scale)
 
         if keys is None:
-            keys = []
+            keys = list(self.env.reset().keys())
             # Add object obs if requested
             if self.env.use_object_obs:
                 keys += ["object-state"]
