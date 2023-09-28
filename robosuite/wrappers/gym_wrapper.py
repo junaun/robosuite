@@ -101,15 +101,11 @@ class GymWrapper(Wrapper, gym.Env):
         Returns:
             np.array: observations flattened into a 1d array
         """
-        # ob_lst = []
-        # for key in self.keys:
-        #     if key in obs_dict:
-        #         if verbose:
-        #             print("adding key: {}".format(key))
-        #         return obs_dict[key]
-                # ob_lst.append(np.array(obs_dict[key]))
-        # return np.concatenate(ob_lst)
-        return obs_dict
+        robot_state = {}
+        for key, value in obs_dict.items():
+            if key in self.keys:
+                robot_state[key] = value
+        return robot_state
 
     def reset(self, seed=None, options=None):
         """
