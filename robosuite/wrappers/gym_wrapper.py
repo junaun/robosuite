@@ -37,9 +37,8 @@ class GymWrapper(Wrapper, gym.Env):
 
         # Get reward range
         self.reward_range = (0, self.env.reward_scale)
-
         if keys is None:
-            keys = list(self.env.reset().keys())
+            keys = list(env.reset().keys())
             # Add object obs if requested
             if self.env.use_object_obs:
                 keys += ["object-state"]
@@ -50,7 +49,6 @@ class GymWrapper(Wrapper, gym.Env):
             for idx in range(len(self.env.robots)):
                 keys += ["robot{}_proprio-state".format(idx)]
         self.keys = keys
-
         # Gym specific attributes
         self.env.spec = None
 
