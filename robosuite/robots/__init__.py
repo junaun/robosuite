@@ -1,6 +1,7 @@
 from .manipulator import Manipulator
 from .single_arm import SingleArm
 from .bimanual import Bimanual
+from .single_arm_custom import SingleArmCustom
 
 from robosuite.models.robots.robot_model import REGISTERED_ROBOTS
 
@@ -15,6 +16,7 @@ ROBOT_CLASS_MAPPING = {
     "Panda": SingleArm,
     "Sawyer": SingleArm,
     "UR5e": SingleArm,
+    "UR5e_custom": SingleArmCustom,
 }
 
 BIMANUAL_ROBOTS = {k.lower() for k, v in ROBOT_CLASS_MAPPING.items() if v == Bimanual}
