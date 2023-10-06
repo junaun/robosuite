@@ -20,6 +20,7 @@ env = GymWrapper(suite.make(
     robots=["UR5e","UR5e_custom"],  # try with other robots like "Sawyer" and "Jaco"
     has_renderer=True,
     has_offscreen_renderer=True,
+    render_camera=None, 
     use_object_obs=False,                   # don't provide object observations to agent
     use_camera_obs=True,
     camera_names="frontview",      # use "agentview" camera for observations
@@ -30,12 +31,12 @@ env = GymWrapper(suite.make(
     control_freq=20,                        # control should happen fast enough so that simulation looks smooth
 ))
 
-writer = imageio.get_writer(f'video.mp4', fps=20)
+# writer = imageio.get_writer(f'video.mp4', fps=20)
 
 for i in range(200):
     action = np.random.uniform(-1, 1,12)
     obs, reward, done,done, info = env.step(action)  # take action in the environment
-    writer.append_data(obs['frontview_image'][::-1])
-    # env.render()
-writer.close()
+    # writer.append_data(obs['frontview_image'][::-1])
+    env.render()
+# writer.close()
 env.close()

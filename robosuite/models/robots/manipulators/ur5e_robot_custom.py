@@ -29,13 +29,13 @@ class UR5e_custom(ManipulatorModel):
 
     @property
     def init_qpos(self):
-        return np.array([-0.470, -1.735, 2.480, -2.275-math.pi/2, -1.590, -1.991+math.pi/2])
+        return np.array([-0.470, -1.735, 2.480, -2.275, -1.590+math.pi/2, -1.991+math.pi/2])
 
     @property
     def base_xpos_offset(self):
         return {
             "bins": (-0.5, -0.1, 0),
-            "empty": (-0.6, 0, 0),
+            "empty": (-0.6, 0, -0.2),
             "table": lambda table_length: (-0.16 - table_length / 2, 0, 0),
         }
 
