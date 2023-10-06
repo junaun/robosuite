@@ -127,9 +127,10 @@ else:
         print(f"The folder '{filename}' exists.")
         model = PPO.load(f'{filename}/best_model.zip', env=env)
         callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=filename)
-        model.learn(total_timesteps=5e6, progress_bar=True, log_interval=20, callback=callback)
+        model.learn(total_timesteps=5e5, progress_bar=True, log_interval=20, callback=callback)
     else:
         # Do something else if the folder doesn't exist
         print(f"The folder '{filename}' does not exist.")
         model = PPO("MultiInputPolicy", env, verbose=1, batch_size=256, policy_kwargs=policy_kwargs)
-        model.learn(total_timesteps=5e6, progress_bar=True, log_interval=10, callback=callback)
+        model.learn(total_timesteps=5e5, progress_bar=True, log_interval=10, callback=callback)
+        model.save(f'{filename}/best_model')

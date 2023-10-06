@@ -128,3 +128,4 @@ else:
         model = PPO("MultiInputPolicy", env, verbose=1, batch_size=256, policy_kwargs=policy_kwargs)
         print('start learning')
         model.learn(total_timesteps=5e4, progress_bar=True, log_interval=10, callback=callback)
+        model.save(f'{filename}/best_model')
