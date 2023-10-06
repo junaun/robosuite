@@ -1,3 +1,4 @@
+import argparse
 import robosuite as suite
 from robosuite.wrappers.gym_wrapper import GymWrapper
 import gymnasium as gym
@@ -19,6 +20,11 @@ cwd = os.getcwd()
 new_folder = os.path.join(cwd, filename)
 os.makedirs(new_folder, exist_ok=True)
 
+parser = argparse.ArgumentParser(description='Training or testing mode')
+parser.add_argument('mode', type=str, help='mode', nargs='?', default="training")
+args = parser.parse_args()
+
+mode = args.mode
 mode = 'training'
 controller_config = load_controller_config(default_controller='OSC_POSE')
 
