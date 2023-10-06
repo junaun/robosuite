@@ -35,7 +35,7 @@ if mode == 'test':
         has_renderer=True,
         has_offscreen_renderer=True,
         use_object_obs=False,                   # don't provide object observations to agent
-        use_camera_obs=True,
+        use_camera_obs=False,
         camera_names="robot0_eye_in_hand",      # use "agentview" camera for observations
         camera_heights=84,                      # image height
         camera_widths=84,                       # image width
