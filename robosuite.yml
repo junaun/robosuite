@@ -1,4 +1,4 @@
-name: robo_custom
+name: robosuite
 channels:
   - conda-forge
   - defaults
