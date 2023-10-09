@@ -25,13 +25,13 @@ parser.add_argument('mode', type=str, help='mode', nargs='?', default="training"
 args = parser.parse_args()
 
 mode = args.mode
-controller_config = load_controller_config(default_controller='OSC_POSE')
+#controller_config = load_controller_config(default_controller='OSC_POSE')
 
 if mode == 'test':
     env = GymWrapper(suite.make(
         env_name="Lift", # try with other tasks like "Stack" and "Door"
         robots="UR5e",  # try with other robots like "Sawyer" and "Jaco"
-        controller_configs = controller_config,
+        #controller_configs = controller_config,
         has_renderer=True,
         has_offscreen_renderer=True,
         use_object_obs=False,                   # don't provide object observations to agent
@@ -48,6 +48,7 @@ if mode == 'test':
     writer = imageio.get_writer(f'{filename}/video.mp4', fps=20)
     for i in range(500):
         action, state = model.predict(obs, deterministic=True)
+        print(action)
         obs, reward, done, done, info = env.step(action)
         frontview = env.sim.render(height=1024, width=1024, camera_name="frontview")[::-1]
         writer.append_data(frontview)
@@ -91,26 +92,24 @@ else:
                         if self.verbose > 0:
                             print(f"Saving new best model to {self.save_path}.zip")
                         self.model.save(self.save_path)
-
             return True
 
     env = GymWrapper(suite.make(
         env_name="Lift", # try with other tasks like "Stack" and "Door"
         robots="UR5e",  # try with other robots like "Sawyer" and "Jaco"
-        has_renderer=False,
+        has_renderer=True,
         has_offscreen_renderer=False,
-        controller_configs = controller_config,
+#        controller_configs = controller_config,
         use_object_obs=False,                   # don't provide object observations to agent
         use_camera_obs=False,
         reward_shaping=True,                    # use a dense reward signal for learning
         reward_scale=1.0,
         horizon = 500,
         control_freq=20,                        # control should happen fast enough so that simulation looks smooth
-        ignore_done=True,
+        ignore_done=False,
         hard_reset=False,
     ))
     env = Monitor(env, filename)
-    # ), ['robot0_eye_in_hand_image'])
     policy_kwargs = dict(
         net_arch=[256, 256]
     )
@@ -121,11 +120,16 @@ else:
         # Do something if the folder exists
         print(f"The folder '{filename}' exists.")
         model = PPO.load(f'{filename}/best_model.zip', env=env)
-        model.learn(total_timesteps=5e6, progress_bar=True, log_interval=20, callback=callback)
+        model.learn(total_timesteps=25e4, progress_bar=True, log_interval=20, callback=callback)
     else:
         # Do something else if the folder doesn't exist
         print(f"The folder '{filename}' does not exist.")
         model = PPO("MultiInputPolicy", env, verbose=1, batch_size=256, policy_kwargs=policy_kwargs)
         print('start learning')
-        model.learn(total_timesteps=5e4, progress_bar=True, log_interval=10, callback=callback)
-        model.save(f'{filename}/best_model')
+        model.learn(total_timesteps=5e5, progress_bar=True, log_interval=10, callback=callback)
+        del model
+        # model.save(f'{filename}/best_model')
+        for i in range(10):
+            model = PPO.load(f'{filename}/best_model.zip', env=env)
+            model.learn(total_timesteps=5e5, progress_bar=True, log_interval=20, callback=callback)
+

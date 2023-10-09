@@ -27,11 +27,11 @@ args = parser.parse_args()
 mode = args.mode
 controller_config = load_controller_config(default_controller='OSC_POSE')
 
-if mode == 'testing':
+if mode == 'test':
     env = GymWrapper(suite.make(
         env_name="TwoArmPegInHole", # try with other tasks like "Stack" and "Door"
         robots=["UR5e","UR5e_custom"],  # try with other robots like "Sawyer" and "Jaco"
-        has_renderer=False,
+        has_renderer=True,
         has_offscreen_renderer=True,
         render_camera=None, 
         use_object_obs=False,                   # don't provide object observations to agent
@@ -111,7 +111,7 @@ else:
         reward_scale=1.0,
         horizon = 500,
         control_freq=20,                        # control should happen fast enough so that simulation looks smooth
-        ignore_done=True,
+        ignore_done=False,
         hard_reset=False,
     ))
     env = Monitor(env, filename)
@@ -133,4 +133,8 @@ else:
         print(f"The folder '{filename}' does not exist.")
         model = PPO("MultiInputPolicy", env, verbose=1, batch_size=256, policy_kwargs=policy_kwargs)
         model.learn(total_timesteps=5e5, progress_bar=True, log_interval=10, callback=callback)
-        model.save(f'{filename}/best_model')
+        del model
+        # model.save(f'{filename}/best_model')
+        for i in range(10):
+            model = PPO.load(f'{filename}/best_model.zip', env=env)
+            model.learn(total_timesteps=5e5, progress_bar=True, log_interval=20, callback=callback)
