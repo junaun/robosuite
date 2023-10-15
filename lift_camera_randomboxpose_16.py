@@ -10,7 +10,8 @@ from stable_baselines3 import PPO
 import imageio
 from robosuite.controllers import load_controller_config
 
-filename = 'tmp/gym/multiinput_simple'
+current_name = os.path.basename(__file__)
+filename = f'tmp/gym/{current_name[:-3]}'
 cwd = os.getcwd()
 new_folder = os.path.join(cwd, filename)
 os.makedirs(new_folder, exist_ok=True)
@@ -24,13 +25,13 @@ mode = args.mode
 
 if mode == 'test':
     env = GymWrapper(suite.make(
-        env_name="Lift", # try with other tasks like "Stack" and "Door"
+        env_name="Lift_custom", # try with other tasks like "Stack" and "Door"
         robots="UR5e",  # try with other robots like "Sawyer" and "Jaco"
         #controller_configs = controller_config,
         has_renderer=True,
         has_offscreen_renderer=True,
         use_object_obs=False,                   # don't provide object observations to agent
-        use_camera_obs=False,
+        use_camera_obs=True,
         camera_names="robot0_eye_in_hand",      # use "agentview" camera for observations
         camera_heights=84,                      # image height
         camera_widths=84,                       # image width
@@ -91,40 +92,42 @@ else:
 
     def make_env(i):
         env = GymWrapper(suite.make(
-            env_name="Lift", # try with other tasks like "Stack" and "Door"
+            env_name="Lift_custom", # try with other tasks like "Stack" and "Door"
             robots="UR5e",  # try with other robots like "Sawyer" and "Jaco"
-            has_renderer=True,
-            has_offscreen_renderer=False,
+            has_renderer=False,
+            has_offscreen_renderer=True,
             use_object_obs=False,                   # don't provide object observations to agent
-            use_camera_obs=False,
+            use_camera_obs=True,
             reward_shaping=True,                    # use a dense reward signal for learning
             reward_scale=1.0,
             horizon = 500,
             control_freq=20,                        # control should happen fast enough so that simulation looks smooth
             ignore_done=False,
             hard_reset=False,
+            camera_names="robot0_eye_in_hand",      # use "agentview" camera for observations
+            camera_heights=84,                      # image height
+            camera_widths=84,                       # image width
         ))
-        # env = Monitor(env, f'test_{i}.csv')
         return env
 
-if __name__ == '__main__':
-    num_envs = 16
-    envs = [lambda i=i: make_env(i) for i in range(num_envs)]
-    env = SubprocVecEnv(envs)
-    env = VecMonitor(env, filename=filename)
-    callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=filename)
+    if __name__ == '__main__':
+        num_envs =16
+        envs = [lambda i=i: make_env(i) for i in range(num_envs)]
+        env = SubprocVecEnv(envs)
+        env = VecMonitor(env, filename=filename)
+        callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=filename)
 
-    policy_kwargs = dict(
-        net_arch=[256, 256]
-    )
+        policy_kwargs = dict(
+            net_arch=[256, 256]
+        )
 
-    print(f"The folder '{filename}' does not exist.")
-    model = PPO("MultiInputPolicy", env, verbose=1, batch_size=256, policy_kwargs=policy_kwargs)
-    print('start learning')
-    model.learn(total_timesteps=5e6, progress_bar=True, log_interval=10, callback=callback)
-    # del model
-    # # model.save(f'{filename}/best_model')
-    # for i in range(10):
-    #     model = PPO.load(f'{filename}/best_model.zip', env=env)
-    #     model.learn(total_timesteps=5e5, progress_bar=True, log_interval=20, callback=callback)
+        print(f"The folder '{filename}' does not exist.")
+        model = PPO("MultiInputPolicy", env, verbose=1, batch_size=256, policy_kwargs=policy_kwargs)
+        print('start learning')
+        model.learn(total_timesteps=5e6, progress_bar=True, log_interval=10, callback=callback)
+        # del model
+        # # model.save(f'{filename}/best_model')
+        # for i in range(10):
+        #     model = PPO.load(f'{filename}/best_model.zip', env=env)
+        #     model.learn(total_timesteps=5e5, progress_bar=True, log_interval=20, callback=callback)
 

@@ -11,7 +11,8 @@ from stable_baselines3 import PPO
 import imageio
 from robosuite.controllers import load_controller_config
 
-filename = 'tmp/gym/twoarm_custom'
+current_name = os.path.basename(__file__)
+filename = f'tmp/gym/{current_name[:-3]}'
 cwd = os.getcwd()
 new_folder = os.path.join(cwd, filename)
 os.makedirs(new_folder, exist_ok=True)
@@ -25,7 +26,7 @@ controller_config = load_controller_config(default_controller='OSC_POSE')
 
 if mode == 'test':
     env = GymWrapper(suite.make(
-        env_name="TwoArmPegInHole", # try with other tasks like "Stack" and "Door"
+        env_name="TwoArmPegInHoleCustom", # try with other tasks like "Stack" and "Door"
         robots=["UR5e","UR5e_custom"],  # try with other robots like "Sawyer" and "Jaco"
         has_renderer=True,
         has_offscreen_renderer=True,
@@ -94,7 +95,7 @@ else:
             return True
     def make_env(i):
         env = GymWrapper(suite.make(
-            env_name="TwoArmPegInHole", # try with other tasks like "Stack" and "Door"
+            env_name="TwoArmPegInHoleCustom", # try with other tasks like "Stack" and "Door"
             robots=["UR5e","UR5e_custom"],  # try with other robots like "Sawyer" and "Jaco"
             has_renderer=False,
             has_offscreen_renderer=False,

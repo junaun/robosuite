@@ -13,6 +13,11 @@ from robosuite.environments.manipulation.two_arm_peg_in_hole import TwoArmPegInH
 from robosuite.environments.manipulation.two_arm_handover import TwoArmHandover
 from robosuite.environments.manipulation.two_arm_transport import TwoArmTransport
 
+#custom environments
+from robosuite.environments.manipulation.lift_custom_fix_box import Lift_custom_fixboxpose
+from robosuite.environments.manipulation.lift_custom import  Lift_custom
+from robosuite.environments.manipulation.two_arm_peg_in_hole_custom import TwoArmPegInHoleCustom
+
 from robosuite.environments import ALL_ENVIRONMENTS
 from robosuite.controllers import ALL_CONTROLLERS, load_controller_config
 from robosuite.robots import ALL_ROBOTS

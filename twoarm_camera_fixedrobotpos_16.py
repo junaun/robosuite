@@ -11,7 +11,8 @@ from stable_baselines3 import PPO
 import imageio
 from robosuite.controllers import load_controller_config
 
-filename = 'tmp/gym/twoarm_custom'
+current_name = os.path.basename(__file__)
+filename = f'tmp/gym/{current_name[:-3]}'
 cwd = os.getcwd()
 new_folder = os.path.join(cwd, filename)
 os.makedirs(new_folder, exist_ok=True)

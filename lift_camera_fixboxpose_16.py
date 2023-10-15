@@ -2,7 +2,6 @@ import argparse
 import robosuite as suite
 from robosuite.wrappers.gym_wrapper import GymWrapper
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
-import time
 from stable_baselines3.common.results_plotter import load_results, ts2xy
 from stable_baselines3.common.callbacks import BaseCallback
 import numpy as np
@@ -11,7 +10,8 @@ from stable_baselines3 import PPO
 import imageio
 from robosuite.controllers import load_controller_config
 
-filename = 'tmp/gym/twoarm_custom'
+current_name = os.path.basename(__file__)
+filename = f'tmp/gym/{current_name[:-3]}'
 cwd = os.getcwd()
 new_folder = os.path.join(cwd, filename)
 os.makedirs(new_folder, exist_ok=True)
@@ -21,32 +21,30 @@ parser.add_argument('mode', type=str, help='mode', nargs='?', default="training"
 args = parser.parse_args()
 
 mode = args.mode
-controller_config = load_controller_config(default_controller='OSC_POSE')
+#controller_config = load_controller_config(default_controller='OSC_POSE')
 
 if mode == 'test':
     env = GymWrapper(suite.make(
-        env_name="TwoArmPegInHole", # try with other tasks like "Stack" and "Door"
-        robots=["UR5e","UR5e_custom"],  # try with other robots like "Sawyer" and "Jaco"
+        env_name="Lift_custom_fixboxpose", # try with other tasks like "Stack" and "Door"
+        robots="UR5e",  # try with other robots like "Sawyer" and "Jaco"
+        #controller_configs = controller_config,
         has_renderer=True,
         has_offscreen_renderer=True,
-        render_camera=None, 
         use_object_obs=False,                   # don't provide object observations to agent
-        use_camera_obs=False,
+        use_camera_obs=True,
         camera_names="robot0_eye_in_hand",      # use "agentview" camera for observations
-        camera_heights=512,                      # image height
-        camera_widths=512,                       # image width
+        camera_heights=84,                      # image height
+        camera_widths=84,                       # image width
         reward_shaping=True,                    # use a dense reward signal for learning
-        reward_scale=1.0,
         horizon = 500,
         control_freq=20,                        # control should happen fast enough so that simulation looks smooth
-        ignore_done=True,
-        hard_reset=False,
     ))
     model = PPO.load(f'{filename}/best_model.zip', env=env)
     obs = env.reset()[0]
     writer = imageio.get_writer(f'{filename}/video.mp4', fps=20)
     for i in range(500):
         action, state = model.predict(obs, deterministic=True)
+        print(action)
         obs, reward, done, done, info = env.step(action)
         frontview = env.sim.render(height=1024, width=1024, camera_name="frontview")[::-1]
         writer.append_data(frontview)
@@ -90,47 +88,46 @@ else:
                         if self.verbose > 0:
                             print(f"Saving new best model to {self.save_path}.zip")
                         self.model.save(self.save_path)
-
             return True
+
     def make_env(i):
         env = GymWrapper(suite.make(
-            env_name="TwoArmPegInHole", # try with other tasks like "Stack" and "Door"
-            robots=["UR5e","UR5e_custom"],  # try with other robots like "Sawyer" and "Jaco"
+            env_name="Lift_custom_fixboxpose", # try with other tasks like "Stack" and "Door"
+            robots="UR5e",  # try with other robots like "Sawyer" and "Jaco"
             has_renderer=False,
-            has_offscreen_renderer=False,
-            render_camera=None, 
+            has_offscreen_renderer=True,
             use_object_obs=False,                   # don't provide object observations to agent
-            use_camera_obs=False,
-            camera_names="robot0_eye_in_hand",      # use "agentview" camera for observations
-            camera_heights=84,                      # image height
-            camera_widths=84,                       # image width
+            use_camera_obs=True,
             reward_shaping=True,                    # use a dense reward signal for learning
             reward_scale=1.0,
             horizon = 500,
             control_freq=20,                        # control should happen fast enough so that simulation looks smooth
             ignore_done=False,
             hard_reset=False,
+            camera_names="robot0_eye_in_hand",      # use "agentview" camera for observations
+            camera_heights=84,                      # image height
+            camera_widths=84,                       # image width
         ))
         return env
 
     if __name__ == '__main__':
-        num_envs = 16
+        num_envs =16
         envs = [lambda i=i: make_env(i) for i in range(num_envs)]
         env = SubprocVecEnv(envs)
         env = VecMonitor(env, filename=filename)
+        callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=filename)
 
         policy_kwargs = dict(
             net_arch=[256, 256]
         )
 
-        callback = SaveOnBestTrainingRewardCallback(check_freq=1000, log_dir=filename)
-
-        # Do something else if the folder doesn't exist
         print(f"The folder '{filename}' does not exist.")
         model = PPO("MultiInputPolicy", env, verbose=1, batch_size=256, policy_kwargs=policy_kwargs)
+        print('start learning')
         model.learn(total_timesteps=5e6, progress_bar=True, log_interval=10, callback=callback)
         # del model
         # # model.save(f'{filename}/best_model')
         # for i in range(10):
         #     model = PPO.load(f'{filename}/best_model.zip', env=env)
         #     model.learn(total_timesteps=5e5, progress_bar=True, log_interval=20, callback=callback)
+
