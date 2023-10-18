@@ -24,6 +24,7 @@ mode = args.mode
 #controller_config = load_controller_config(default_controller='OSC_POSE')
 
 if mode == 'test':
+    num_envs = 16
     env = GymWrapper(suite.make(
         env_name="Lift_custom_fixboxpose", # try with other tasks like "Stack" and "Door"
         robots="UR5e",  # try with other robots like "Sawyer" and "Jaco"
@@ -40,17 +41,18 @@ if mode == 'test':
         control_freq=20,                        # control should happen fast enough so that simulation looks smooth
     ))
     model = PPO.load(f'{filename}/best_model.zip', env=env)
-    obs = env.reset()[0]
     writer = imageio.get_writer(f'{filename}/video.mp4', fps=20)
-    for i in range(500):
-        action, state = model.predict(obs, deterministic=True)
-        print(action)
-        obs, reward, done, done, info = env.step(action)
-        frontview = env.sim.render(height=1024, width=1024, camera_name="frontview")[::-1]
-        writer.append_data(frontview)
-        env.render()
-        if done:
-            break
+    for i in range(num_envs):
+        obs = env.reset()[0]
+        for i in range(500):
+            action, state = model.predict(obs, deterministic=True)
+            print(action)
+            obs, reward, done, done, info = env.step(action)
+            frontview = env.sim.render(height=1024, width=1024, camera_name="frontview")[::-1]
+            writer.append_data(frontview)
+            env.render()
+            if done:
+                break
     writer.close()
     env.close()
 else:
